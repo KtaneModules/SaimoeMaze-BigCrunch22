@@ -145,8 +145,16 @@ public class SaimoeMazeScript : MonoBehaviour
 			}
 		}
 	}
-	
-	IEnumerator SubmitOrLoop()
+    int[] adjacentCell(int[] start, int direction)
+    {
+        if (direction == 0) return new int[] { start[0] - 1, start[1] };
+        else if (direction == 1) return new int[] { start[0], start[1] + 1 };
+        else if (direction == 2) return new int[] { start[0] + 1, start[1] };
+        else if (direction == 3) return new int[] { start[0], start[1] - 1 };
+        else throw new IndexOutOfRangeException();  
+    }
+
+    IEnumerator SubmitOrLoop()
 	{
 		if (!ModuleSolved && Interactable)
 		{
@@ -305,4 +313,60 @@ public class SaimoeMazeScript : MonoBehaviour
 			}
 		}
 	}
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        while (!Interactable) yield return true;
+        if (StartingPoint.SequenceEqual(Goal)) goto Submit;
+        string directions = "NESW";
+        Queue<int[]> q = new Queue<int[]>();
+        List<Movement> allMoves = new List<Movement>();
+        q.Enqueue(StartingPoint);
+        while (q.Count > 0)
+        {
+            int[] subject = q.Dequeue();
+            for (int i = 0; i < 4; i++)
+            {
+                if (!Maze[subject[0]][subject[1]].Contains(directions[i]) && !allMoves.Any(x => x.start.SequenceEqual(adjacentCell(subject, i))))
+                {
+                    q.Enqueue(adjacentCell(subject, i));
+                    allMoves.Add(new Movement(subject, adjacentCell(subject, i), i));
+                }
+            }
+            if (subject.SequenceEqual(Goal)) break;
+        }
+        if (allMoves.Count != 0)
+        {
+            Movement lastMove = allMoves.First(x => x.end.SequenceEqual(Goal));
+            List<Movement> path = new List<Movement>() { lastMove };
+            while (!lastMove.start.SequenceEqual(StartingPoint))
+            {
+                lastMove = allMoves.First(x => x.end.SequenceEqual(lastMove.start));
+                path.Add(lastMove);
+            }
+            path.Reverse();
+            foreach (Movement move in path)
+            {
+                Buttons[move.direction].GetComponent<KMSelectable>().OnInteract();
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+        Submit:
+        Center.GetComponent<KMSelectable>().OnInteract();
+        yield return new WaitForSeconds(0.1f);
+        Center.GetComponent<KMSelectable>().OnInteractEnded();
+        yield return new WaitForSeconds(0.1f);
+
+    }
+}
+
+public class Movement
+{
+    public int[] start { get; set; }
+    public int[] end { get; set; }
+    public int direction { get; set; }
+
+    public Movement(int[] a, int[] b, int c)
+    {
+        start = a; end = b; direction = c;
+    }
 }
