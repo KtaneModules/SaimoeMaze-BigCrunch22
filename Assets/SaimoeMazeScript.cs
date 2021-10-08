@@ -38,7 +38,7 @@ public class SaimoeMazeScript : MonoBehaviour
 		new string[10] {"SW", "N", "NS", "NS", "SE", "SW", "NS", "NE", "EW", "EW"},
 		new string[10] {"NW", "E", "NW", "NE", "NW", "SN", "NE", "WE", "SW", "ES"},
 		new string[10] {"EW", "EWS", "EW", "WS", "ES", "WN", "SE", "W", "SN", "NE"},
-		new string[10] {"SW", "NS", "S", "NS", "NES", "EWS", "NSE", "ES", "NWS", "SE"}
+		new string[10] {"SW", "NS", "S", "NS", "NES", "EWS", "NSW", "ES", "NWS", "SE"}
 	};
 	
 	//Logging
